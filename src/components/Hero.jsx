@@ -1,59 +1,109 @@
-import React from 'react';
-import { FaRocket, FaSearch, FaChevronDown } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaRocket, FaChevronDown } from 'react-icons/fa';
 import { TypeAnimation } from 'react-type-animation';
 import { motion } from 'framer-motion';
 
 const Hero = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Track mouse movement for parallax effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Smooth scroll
+  useEffect(() => {
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  }, []);
+
   return (
     <section
       id="home"
-      className="relative min-h-screen bg-gradient-to-br from-indigo-100 via-white to-cyan-100 flex flex-col justify-center items-center text-center px-6 overflow-hidden font-sans"
+      className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 font-sans overflow-hidden"
     >
-      {/* Background bubble animation */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute w-64 h-64 bg-indigo-300 rounded-full opacity-30 blur-3xl top-12 left-10 animate-pulse"></div>
-        <div className="absolute w-80 h-80 bg-cyan-200 rounded-full opacity-30 blur-2xl bottom-0 right-0 animate-pulse delay-200"></div>
-      </div>
+      {/* Animated Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 animate-gradient-x"></div>
 
-      {/* Hero Content */}
+      {/* Spotlight effect */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15),transparent)]"></div>
+
+      {/* Floating Bubbles with parallax */}
       <motion.div
-        initial={{ opacity: 0, y: -40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="z-10 max-w-4xl w-full"
+        className="absolute w-72 h-72 bg-white/10 rounded-full blur-3xl"
+        style={{
+          top: `calc(20% + ${(mousePos.y - window.innerHeight / 2) * 0.02}px)`,
+          left: `calc(10% + ${(mousePos.x - window.innerWidth / 2) * 0.02}px)`,
+        }}
+        transition={{ type: 'spring', stiffness: 30 }}
+      />
+      <motion.div
+        className="absolute w-96 h-96 bg-white/5 rounded-full blur-3xl"
+        style={{
+          bottom: `calc(15% - ${(mousePos.y - window.innerHeight / 2) * 0.02}px)`,
+          right: `calc(5% - ${(mousePos.x - window.innerWidth / 2) * 0.02}px)`,
+        }}
+        transition={{ type: 'spring', stiffness: 30 }}
+      />
+
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, ease: 'easeOut' }}
+        className="relative z-10 max-w-4xl text-white drop-shadow-lg"
       >
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-indigo-900 mb-6 flex justify-center items-center gap-3 tracking-tight">
-          <FaRocket className="text-indigo-600 animate-bounce" />
+        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 flex justify-center items-center gap-3 tracking-tight">
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
+          >
+            <FaRocket className="text-yellow-300 drop-shadow-glow" />
+          </motion.div>
           <TypeAnimation
             sequence={[
-              "Empowering Future Professionals",
+              "🚀 Empowering Future Professionals",
               2000,
-              "Building Real Skills for Real Careers",
+              "💼 Building Real Skills for Real Careers",
+              2000,
+              "📈 Your Career Starts Here",
               2000,
             ]}
             wrapper="span"
             speed={50}
             repeat={Infinity}
-            className="inline"
+            className="bg-gradient-to-r from-yellow-300 via-pink-300 to-cyan-300 bg-clip-text text-transparent"
           />
         </h1>
-        <p className="text-base sm:text-lg md:text-xl text-gray-800 mb-8 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg md:text-xl text-gray-100 mb-8 max-w-2xl mx-auto leading-relaxed">
           Launch your career with online internships in Web Development, AI/ML, Java, Power BI, and more.
           Learn from experts, build real projects, and earn valuable certifications.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <a
+          <motion.a
+            whileHover={{ scale: 1.08, boxShadow: "0px 0px 20px rgba(255,255,255,0.6)" }}
             href="#internships"
-            className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:brightness-110 transition text-sm sm:text-base"
+            className="bg-white/20 backdrop-blur-lg text-white px-6 py-3 rounded-full font-semibold shadow-lg transition text-sm sm:text-base border border-white/30"
           >
             🚀 Apply Now
-          </a>
-          <a
+          </motion.a>
+          <motion.a
+            whileHover={{ scale: 1.08, backgroundColor: "rgba(255,255,255,0.2)" }}
             href="#domains"
-            className="border border-indigo-600 text-indigo-600 px-6 py-3 rounded-full font-semibold shadow hover:bg-indigo-50 transition text-sm sm:text-base"
+            className="border border-white/40 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition text-sm sm:text-base backdrop-blur-lg"
           >
             🔍 Explore Domains
-          </a>
+          </motion.a>
         </div>
       </motion.div>
 
@@ -62,7 +112,10 @@ const Hero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, y: [0, 10, 0] }}
         transition={{ repeat: Infinity, duration: 2 }}
-        className="mt-12 text-indigo-600 text-xl"
+        className="mt-12 text-white text-xl cursor-pointer z-10"
+        onClick={() => {
+          document.querySelector('#internships')?.scrollIntoView({ behavior: 'smooth' });
+        }}
       >
         <FaChevronDown />
       </motion.div>
@@ -71,3 +124,14 @@ const Hero = () => {
 };
 
 export default Hero;
+
+/* Extra Tailwind Animations (Add to globals.css or tailwind.config.css)
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+}
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 8s ease infinite;
+}
+*/

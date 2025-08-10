@@ -1,6 +1,6 @@
 // Testimonials.jsx
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { FaQuoteLeft } from 'react-icons/fa';
 
 const testimonials = [
@@ -21,12 +21,14 @@ const testimonials = [
   },
 ];
 
+// Animation for cards
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 40, scale: 0.95 },
   visible: (i) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.2, duration: 0.5, type: 'spring' },
+    scale: 1,
+    transition: { delay: i * 0.2, duration: 0.6, type: 'spring' },
   }),
 };
 
@@ -39,53 +41,89 @@ const Testimonials = () => {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="text-4xl font-bold text-center text-indigo-800 mb-12"
+        className="text-4xl font-bold text-center text-indigo-800 mb-14"
       >
         What Interns Say
       </motion.h2>
 
       {/* Testimonials Grid */}
-      <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+      <div className="grid gap-10 md:grid-cols-3 max-w-6xl mx-auto">
         {testimonials.map((item, i) => (
-          <motion.div
-            key={i}
-            custom={i}
-            variants={cardVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            whileHover={{
-              scale: 1.05,
-              rotate: [-0.5, 0.5, 0],
-              boxShadow: '0 12px 24px rgba(79, 70, 229, 0.15)',
-            }}
-            transition={{ type: 'spring', stiffness: 200 }}
-            className="relative bg-white p-6 rounded-xl shadow border border-transparent hover:border-indigo-300 transition-all duration-300 group"
-          >
-            {/* Animated quote icon */}
-            <motion.div
-              whileHover={{ rotate: -10, scale: 1.1 }}
-              transition={{ type: 'spring', stiffness: 200 }}
-              className="text-indigo-400 text-3xl mb-4"
-            >
-              <FaQuoteLeft />
-            </motion.div>
-
-            {/* Testimonial text */}
-            <p className="text-gray-700 italic mb-4 leading-relaxed">“{item.text}”</p>
-
-            {/* Name + Role */}
-            <div className="mt-auto">
-              <h4 className="text-indigo-700 font-semibold text-lg">{item.name}</h4>
-              <span className="text-sm text-gray-500">{item.role}</span>
-            </div>
-
-            {/* Glow overlay on hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-r from-indigo-300 to-purple-300 transition duration-500 rounded-xl"></div>
-          </motion.div>
+          <TiltCard key={i} i={i} {...item} />
         ))}
       </div>
     </section>
+  );
+};
+
+// Tilt effect card
+const TiltCard = ({ i, name, role, text }) => {
+  const ref = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-50, 50], [10, -10]);
+  const rotateY = useTransform(x, [-50, 50], [-10, 10]);
+
+  const handleMouseMove = (e) => {
+    const rect = ref.current.getBoundingClientRect();
+    x.set(e.clientX - rect.left - rect.width / 2);
+    y.set(e.clientY - rect.top - rect.height / 2);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      custom={i}
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      style={{ rotateX, rotateY }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="group p-[2px] rounded-2xl bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 transition-all duration-500 hover:scale-[1.02]"
+      ref={ref}
+    >
+      {/* Inner white card */}
+      <div className="bg-white rounded-2xl p-6 shadow-lg h-full relative overflow-hidden">
+        {/* Animated quote icon */}
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 4 }}
+          className="text-indigo-500 text-3xl mb-4"
+        >
+          <FaQuoteLeft />
+        </motion.div>
+
+        {/* Testimonial text */}
+        <motion.p
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.3 + 0.3, duration: 0.6 }}
+          className="text-gray-700 italic mb-4 leading-relaxed"
+        >
+          “{text}”
+        </motion.p>
+
+        {/* Name + Role */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.3 + 0.5, duration: 0.6 }}
+          className="mt-auto"
+        >
+          <h4 className="text-indigo-700 font-semibold text-lg">{name}</h4>
+          <span className="text-sm text-gray-500">{role}</span>
+        </motion.div>
+
+        {/* Hover Glow Overlay */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-20 bg-gradient-to-r from-indigo-300 to-purple-300 transition duration-500 rounded-2xl"></div>
+      </div>
+    </motion.div>
   );
 };
 

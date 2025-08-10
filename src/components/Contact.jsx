@@ -8,17 +8,42 @@ export default function Contact() {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // fake submit for demo — replace with your API call
+
     setStatus("Sending...");
-    setTimeout(() => {
-      setStatus("Message sent! 🎉");
-      setName("");
-      setEmail("");
-      setMessage("");
-      setTimeout(() => setStatus(""), 3000);
-    }, 900);
+
+    try {
+      // Example: Send to EmailJS API (replace YOUR_SERVICE_ID, TEMPLATE_ID, USER_ID)
+      const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: "YOUR_SERVICE_ID",
+          template_id: "YOUR_TEMPLATE_ID",
+          user_id: "YOUR_PUBLIC_KEY",
+          template_params: {
+            to_email: "techieszoneintern@gmail.com", // fixed recipient
+            from_name: name,
+            from_email: email,
+            message: message,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        setStatus("Message sent! 🎉");
+        setName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        setStatus("Failed to send message ❌");
+      }
+    } catch (err) {
+      setStatus("Error sending message ❌");
+    }
+
+    setTimeout(() => setStatus(""), 3000);
   };
 
   return (
@@ -26,7 +51,7 @@ export default function Contact() {
       id="contact"
       className="relative py-20 px-6 bg-gradient-to-br from-sky-50 via-white to-indigo-50 overflow-hidden"
     >
-      {/* Decorative SVG background (inline to avoid external URL issues) */}
+      {/* Decorative SVG */}
       <svg
         className="absolute -z-10 left-1/2 top-0 -translate-x-1/2 opacity-20 pointer-events-none"
         width="900"
