@@ -130,13 +130,3 @@ const Hero = () => {
 
 export default Hero;
 
-/* Add in globals.css or tailwind.config.css
-@keyframes gradient-x {
-  0%, 100% { background-position: 0% 50% }
-  50% { background-position: 100% 50% }
-}
-.animate-gradient-x {
-  background-size: 200% 200%;
-  animation: gradient-x 8s ease infinite;
-}
-*/
